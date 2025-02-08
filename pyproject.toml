@@ -15,6 +15,7 @@ dependencies = [
     "pacmap>=0.7.6",
     "plotly>=6.0.0",
     "ragatouille>=0.0.8.post4",
+    "requests>=2.32.3",
     "ruff>=0.9.4",
     "sentence-transformers>=2.7.0",
     "torch>=2.6.0",
