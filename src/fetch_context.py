@@ -1,23 +1,11 @@
+from typing import List, Optional
+
 import requests
 from bs4 import BeautifulSoup
+from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import WebBaseLoader
 from transformers import AutoTokenizer
-
-
-def get_data_from_web(url: str) -> str:
-    """Function to get data from the url and return the text content
-
-    Args:
-        url (str): url to get data from
-
-    Returns:
-        str: data from the url
-    """
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, "html.parser")
-    content = soup.find(id="bodyContent")
-    return content.text
-
 
 MARKDOWN_SEPARATORS = [
     "\n#{1,6} ",
@@ -32,6 +20,11 @@ MARKDOWN_SEPARATORS = [
 ]
 
 EMBEDDING_MODEL_NAME = "thenlper/gte-small"
+
+
+def get_data_from_web(urls: List[str]) -> List[Document]:
+    loader = WebBaseLoader(urls)
+    return loader.load()
 
 
 def chunk_data_length(text):
@@ -53,10 +46,54 @@ def chunk_data_huggingface(text):
     return text_splitter.split_text(text)
 
 
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=512,  # The maximum number of characters in a chunk: we selected this value arbitrarily
+    chunk_overlap=100,  # The number of characters to overlap between chunks
+    add_start_index=True,  # If `True`, includes chunk's start index in metadata
+    strip_whitespace=True,  # If `True`, strips whitespace from the start and end of every document
+    separators=MARKDOWN_SEPARATORS,
+)
+
+
+def split_documents(
+    chunk_size: int,
+    knowledge_base: List[Document],
+    tokenizer_name: Optional[str] = EMBEDDING_MODEL_NAME,
+) -> List[Document]:
+    """
+    Split documents into chunks of maximum size `chunk_size` tokens and return a list of documents.
+    """
+    text_splitter = RecursiveCharacterTextSplitter.from_huggingface_tokenizer(
+        AutoTokenizer.from_pretrained(tokenizer_name),
+        chunk_size=chunk_size,
+        chunk_overlap=int(chunk_size / 10),
+        add_start_index=True,
+        strip_whitespace=True,
+        separators=MARKDOWN_SEPARATORS,
+    )
+
+    docs_processed = []
+    for doc in knowledge_base:
+        docs_processed += text_splitter.split_documents([doc])
+
+    # Remove duplicates
+    unique_texts = {}
+    docs_processed_unique = []
+    for doc in docs_processed:
+        if doc.page_content not in unique_texts:
+            unique_texts[doc.page_content] = True
+            docs_processed_unique.append(doc)
+
+    return docs_processed_unique
+
+
 if __name__ == "__main__":
-    text = get_data_from_web("https://en.wikipedia.org/wiki/Thai_addressing_system")
-    chunks = chunk_data_length(text)
-    chunks_huggingface = chunk_data_huggingface(text)
-    print(type(chunks_huggingface))
-    for chunk in chunks_huggingface:
-        print(chunk)
+    thai_context = [
+        "https://www.smarty.com/global-address-formatting/thailand-address-format-examples",
+        "https://en.wikipedia.org/wiki/Thai_addressing_system",
+    ]
+
+    docs = get_data_from_web(thai_context)
+    docs_processed = split_documents(512, docs)
+
+    # print(len(docs_processed))
