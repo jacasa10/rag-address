@@ -88,12 +88,4 @@ def split_documents(
 
 
 if __name__ == "__main__":
-    thai_context = [
-        "https://www.smarty.com/global-address-formatting/thailand-address-format-examples",
-        "https://en.wikipedia.org/wiki/Thai_addressing_system",
-    ]
-
-    docs = get_data_from_web(thai_context)
-    docs_processed = split_documents(512, docs)
-
-    # print(len(docs_processed))
+    pass

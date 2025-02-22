@@ -1,82 +1,7 @@
-from typing import List, Optional, Tuple
-
-import datasets
-import matplotlib.pyplot as plt
-import pandas as pd
 import torch
-from langchain.docstore.document import Document as LangchainDocument
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import FAISS
 from ragatouille import RAGPretrainedModel
-from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, Pipeline, pipeline
-
-# Here we load the knowledge base from the dataset
-
-# ds = datasets.load_dataset("m-ric/huggingface_doc", split="train")
-
-# RAW_KNOWLEDGE_BASE = [
-#     LangchainDocument(page_content=doc["text"], metadata={"source": doc["source"]})
-#     for doc in tqdm(ds)
-# ]
-
-# docs_processed = []
-# for doc in RAW_KNOWLEDGE_BASE:
-#     docs_processed += text_splitter.split_documents([doc])
-
-tokenizer = AutoTokenizer.from_pretrained("thenlper/gte-small")
-
-lengths = [len(tokenizer.encode(doc.page_content)) for doc in tqdm(docs_processed)]
-
-# Plot the distribution of document lengths, counted as the number of tokens
-fig = pd.Series(lengths).hist()
-plt.title("Distribution of document lengths in the knowledge base (in count of tokens)")
-plt.show()
-
-
-####################
-
-EMBEDDING_MODEL_NAME = "thenlper/gte-small"
-
-
-def split_documents(
-    chunk_size: int,
-    knowledge_base: List[LangchainDocument],
-    tokenizer_name: Optional[str] = EMBEDDING_MODEL_NAME,
-) -> List[LangchainDocument]:
-    """
-    Split documents into chunks of maximum size `chunk_size` tokens and return a list of documents.
-    """
-    text_splitter = RecursiveCharacterTextSplitter.from_huggingface_tokenizer(
-        AutoTokenizer.from_pretrained(tokenizer_name),
-        chunk_size=chunk_size,
-        chunk_overlap=int(chunk_size / 10),
-        add_start_index=True,
-        strip_whitespace=True,
-        separators=MARKDOWN_SEPARATORS,
-    )
-
-    docs_processed = []
-    for doc in knowledge_base:
-        docs_processed += text_splitter.split_documents([doc])
-
-    # Remove duplicates
-    unique_texts = {}
-    docs_processed_unique = []
-    for doc in docs_processed:
-        if doc.page_content not in unique_texts:
-            unique_texts[doc.page_content] = True
-            docs_processed_unique.append(doc)
-
-    return docs_processed_unique
-
-
-docs_processed = split_documents(
-    512,  # We choose a chunk size adapted to our model
-    RAW_KNOWLEDGE_BASE,
-    tokenizer_name=EMBEDDING_MODEL_NAME,
-)
-
 
 # Reader LLM
 
@@ -126,50 +51,5 @@ Question: {question}""",
 RAG_PROMPT_TEMPLATE = tokenizer.apply_chat_template(
     prompt_in_chat_format, tokenize=False, add_generation_prompt=True
 )
-print(RAG_PROMPT_TEMPLATE)
 
 RERANKER = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")
-
-
-# ALL TOGETHER
-def answer_with_rag(
-    question: str,
-    llm: Pipeline,
-    knowledge_index: FAISS,
-    reranker: Optional[RAGPretrainedModel] = None,
-    num_retrieved_docs: int = 30,
-    num_docs_final: int = 5,
-) -> Tuple[str, List[LangchainDocument]]:
-    # Gather documents with retriever
-    print("=> Retrieving documents...")
-    relevant_docs = knowledge_index.similarity_search(query=question, k=num_retrieved_docs)
-    relevant_docs = [doc.page_content for doc in relevant_docs]  # Keep only the text
-
-    # Optionally rerank results
-    if reranker:
-        print("=> Reranking documents...")
-        relevant_docs = reranker.rerank(question, relevant_docs, k=num_docs_final)
-        relevant_docs = [doc["content"] for doc in relevant_docs]
-
-    relevant_docs = relevant_docs[:num_docs_final]
-
-    # Build the final prompt
-    context = "\nExtracted documents:\n"
-    context += "".join([f"Document {str(i)}:::\n" + doc for i, doc in enumerate(relevant_docs)])
-
-    final_prompt = RAG_PROMPT_TEMPLATE.format(question=question, context=context)
-
-    # Redact an answer
-    print("=> Generating answer...")
-    answer = llm(final_prompt)[0]["generated_text"]
-
-    return answer, relevant_docs
-
-
-question = "how to create a pipeline object?"
-answer, relevant_docs = answer_with_rag(
-    question, READER_LLM, KNOWLEDGE_VECTOR_DATABASE, reranker=RERANKER
-)
-
-if __name__ == "__main__":
-    pass

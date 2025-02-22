@@ -6,7 +6,6 @@ from langchain_community.vectorstores.utils import DistanceStrategy
 from langchain_huggingface import HuggingFaceEmbeddings
 
 from fetch_context import get_data_from_web, split_documents
-from plots import plot_embeddings
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
@@ -70,8 +69,8 @@ if __name__ == "__main__":
         "https://en.wikipedia.org/wiki/Thai_addressing_system",
     ]
 
-    docs = get_data_from_web(thai_context)
-    docs_processed = split_documents(512, docs)
+    # docs = get_data_from_web(thai_context)
+    # docs_processed = split_documents(512, docs)
 
     v_db = VectorDatabase()
     vector_store = v_db.load_embedding()
@@ -84,8 +83,3 @@ if __name__ == "__main__":
     # vector_store = v_db.create_vector_store_from_documents(docs_processed)
 
     # v_db.save_embedding(vector_store)
-    print(
-        plot_embeddings(
-            embedding_model, docs_processed, vector_store, user_query="Street 2 Bangkok"
-        )
-    )
