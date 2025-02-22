@@ -1,14 +1,14 @@
 from typing import List, Optional, Tuple
 
 from langchain.docstore.document import Document as LangchainDocument
-from langchain.vectorstores import FAISS
+from langchain_community.vectorstores import FAISS
 from omegaconf import OmegaConf
 from ragatouille import RAGPretrainedModel
 from transformers import Pipeline
 
-from .fetch_context import get_data_from_web, split_documents
-from .llm import RAG_PROMPT_TEMPLATE, READER_LLM, RERANKER
-from .vector_store import VectorDatabase
+from fetch_context import get_data_from_web, split_documents
+from llm import RAG_PROMPT_TEMPLATE, READER_LLM, RERANKER
+from vector_store import VectorDatabase
 
 
 def answer_with_rag(

@@ -1,19 +1,18 @@
 import torch
-from langchain.vectorstores import FAISS
 from ragatouille import RAGPretrainedModel
-from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, Pipeline, pipeline
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 
 # Reader LLM
 
 READER_MODEL_NAME = "HuggingFaceH4/zephyr-7b-beta"
 
-bnb_config = BitsAndBytesConfig(
-    load_in_4bit=True,
-    bnb_4bit_use_double_quant=True,
-    bnb_4bit_quant_type="nf4",
-    bnb_4bit_compute_dtype=torch.bfloat16,
-)
-model = AutoModelForCausalLM.from_pretrained(READER_MODEL_NAME, quantization_config=bnb_config)
+# bnb_config = BitsAndBytesConfig(
+#     load_in_4bit=True,
+#     bnb_4bit_use_double_quant=True,
+#     bnb_4bit_quant_type="nf4",
+#     bnb_4bit_compute_dtype=torch.bfloat16,
+# )
+model = AutoModelForCausalLM.from_pretrained(READER_MODEL_NAME)
 tokenizer = AutoTokenizer.from_pretrained(READER_MODEL_NAME)
 
 READER_LLM = pipeline(

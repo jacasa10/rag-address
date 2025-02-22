@@ -109,6 +109,12 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/07/38/e321b0e05d8cc068a594279fb7c097efb1df66231c295d482d7ad51b6473/annoy-1.17.3.tar.gz", hash = "sha256:9cbfebefe0a5f843eba29c6be4c84d601f4f41ad4ded0486f1b88c3b07739c15", size = 647460 }
 
 [[package]]
+name = "antlr4-python3-runtime"
+version = "4.8"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/56/02/789a0bddf9c9b31b14c3e79ec22b9656185a803dc31c15f006f9855ece0d/antlr4-python3-runtime-4.8.tar.gz", hash = "sha256:15793f5d0512a372b4e7d2284058ad32ce7dd27126b105fb0b2245130445db33", size = 112404 }
+
+[[package]]
 name = "anyio"
 version = "4.8.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1622,6 +1628,19 @@ wheels = [
 ]
 
 [[package]]
+name = "omegaconf"
+version = "2.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "antlr4-python3-runtime" },
+    { name = "pyyaml" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c6/64/adf8437d94a8eaea202267015d87ba2b0723fdaa800e4d42b27635dbb1b3/omegaconf-2.2.0.tar.gz", hash = "sha256:5d07815213292256db9cacd8920b9f565a0bfc64b42620456120ac393f0eda6a", size = 2101478 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b5/f6/b463d1ddb249ae59a9b1c7c2ef423b60262973da70db781e06aee19d5f8b/omegaconf-2.2.0-py3-none-any.whl", hash = "sha256:61ade5dbc667cb51d290e8f5e7d54850ebf145f14dddf81222123bab5f0f7bc1", size = 77112 },
+]
+
+[[package]]
 name = "onnx"
 version = "1.17.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2082,6 +2101,7 @@ dependencies = [
     { name = "langchain" },
     { name = "langchain-community" },
     { name = "matplotlib" },
+    { name = "omegaconf" },
     { name = "openpyxl" },
     { name = "pacmap" },
     { name = "plotly" },
@@ -2103,6 +2123,7 @@ requires-dist = [
     { name = "langchain", specifier = ">=0.3.18" },
     { name = "langchain-community", specifier = ">=0.3.16" },
     { name = "matplotlib", specifier = ">=3.10.0" },
+    { name = "omegaconf", specifier = "==2.2.0" },
     { name = "openpyxl", specifier = ">=3.1.5" },
     { name = "pacmap", specifier = ">=0.7.6" },
     { name = "plotly", specifier = ">=6.0.0" },
