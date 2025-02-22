@@ -52,7 +52,7 @@ if __name__ == "main":
     vector_database = VectorDatabase()
     knowledge_vector_database = vector_database.create_vector_store_from_documents(documents)
 
-    question = "how to create a pipeline object?"
+    question = "parse this address 1234 Main St, Springfield, IL 62701"
     answer, relevant_docs = answer_with_rag(
         question, READER_LLM, knowledge_vector_database, reranker=RERANKER
     )

@@ -64,22 +64,23 @@ class VectorDatabase:
 
 
 if __name__ == "__main__":
-    thai_context = [
-        "https://www.smarty.com/global-address-formatting/thailand-address-format-examples",
-        "https://en.wikipedia.org/wiki/Thai_addressing_system",
-    ]
+    pass
+    # thai_context = [
+    #     "https://www.smarty.com/global-address-formatting/thailand-address-format-examples",
+    #     "https://en.wikipedia.org/wiki/Thai_addressing_system",
+    # ]
 
-    # docs = get_data_from_web(thai_context)
-    # docs_processed = split_documents(512, docs)
+    # # docs = get_data_from_web(thai_context)
+    # # docs_processed = split_documents(512, docs)
 
-    v_db = VectorDatabase()
-    vector_store = v_db.load_embedding()
-    embedding_model = HuggingFaceEmbeddings(
-        model_name=EMBEDDING_MODEL,
-        multi_process=True,
-        encode_kwargs={"normalize_embeddings": True},
-    )
+    # v_db = VectorDatabase()
+    # vector_store = v_db.load_embedding()
+    # embedding_model = HuggingFaceEmbeddings(
+    #     model_name=EMBEDDING_MODEL,
+    #     multi_process=True,
+    #     encode_kwargs={"normalize_embeddings": True},
+    # )
 
-    # vector_store = v_db.create_vector_store_from_documents(docs_processed)
+    # # vector_store = v_db.create_vector_store_from_documents(docs_processed)
 
-    # v_db.save_embedding(vector_store)
+    # # v_db.save_embedding(vector_store)
